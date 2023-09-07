@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Upload and Display</title>
+    <style>
+      /* Add your CSS styles here */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+      }
+      img {
+        max-width: 100px;
+        max-height: 100px;
+      }
+      .name-response-input {
+        display: block;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Image Upload and Display</h1>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button onclick="uploadImage()">Upload Image</button>
+
+    <table id="imageTable">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name and Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Image data will be displayed here -->
+      </tbody>
+    </table>
+
+    <script>
+      // JavaScript code for handling image upload and name/response addition
+      const imageDetails = [];
+
+      function uploadImage() {
+        const imageInput = document.getElementById("imageInput");
+
+        // Check if an image is selected
+        if (imageInput.files.length === 0) {
+          alert("Please select an image.");
+          return;
+        }
+
+        const imageUrl = URL.createObjectURL(imageInput.files[0]);
+
+        // Create a new row in the table
+        const table = document
+          .getElementById("imageTable")
+          .getElementsByTagName("tbody")[0];
+        const newRow = table.insertRow(table.rows.length);
+        const imageCell = newRow.insertCell(0);
+        const nameResponseCell = newRow.insertCell(1);
+
+        // Add image to the new row
+        imageCell.innerHTML = `<img src="${imageUrl}" alt="Uploaded Image">`;
+
+        // Create input fields for name and response
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.placeholder = "Name of Uploader";
+        nameInput.className = "name-response-input";
+
+        const responseInput = document.createElement("textarea");
+        responseInput.placeholder = "Response";
+        responseInput.className = "name-response-input";
+
+        const uploadButton = document.createElement("button");
+        uploadButton.textContent = "Upload Name & Response";
+        uploadButton.onclick = function () {
+          addNameResponse(newRow);
+        };
+
+        nameResponseCell.appendChild(nameInput);
+        nameResponseCell.appendChild(responseInput);
+        nameResponseCell.appendChild(uploadButton);
+
+        // Store image details in the array
+        imageDetails.push({ names: [], responses: [] });
+      }
+
+      function addNameResponse(row) {
+        const nameInput = row.querySelector("input[type='text']");
+        const responseInput = row.querySelector("textarea");
+
+        const uploaderName = nameInput.value;
+        const response = responseInput.value;
+
+        // Get the index of the current row
+        const rowIndex = row.rowIndex - 1;
+
+        if (rowIndex === -1) {
+          alert("Please upload an image first.");
+          return;
+        }
+
+        const namesList =
+          row.querySelector("ul.names-list") || document.createElement("ul");
+        const responsesList =
+          row.querySelector("ul.responses-list") ||
+          document.createElement("ul");
+
+        // Append name and response to the lists
+        namesList.innerHTML += `<li>${uploaderName}</li>`;
+        responsesList.innerHTML += `<li>${response}</li>`;
+
+        // Store names and responses in the array
+        imageDetails[rowIndex].names.push(uploaderName);
+        imageDetails[rowIndex].responses.push(response);
+
+        // Clear input fields
+        nameInput.value = "";
+        responseInput.value = "";
+
+        // Append lists to the row
+        if (!row.querySelector("ul.names-list")) {
+          namesList.className = "names-list";
+          row.cells[1].appendChild(namesList);
+        }
+        if (!row.querySelector("ul.responses-list")) {
+          responsesList.className = "responses-list";
+          row.cells[1].appendChild(responsesList);
+        }
+      }
+    </script>
+  </body>
+</html>
