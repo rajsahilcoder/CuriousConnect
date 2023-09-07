@@ -49,6 +49,10 @@
     </table>
 
     <script>
+      // JavaScript code for handling image upload and name/response addition
+      const token = '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';
+      const repoOwner = 'rajsahilcoder';
+      const repoName =
       const imageDetails = [];
 
       function uploadImage() {
@@ -86,7 +90,7 @@
         const uploadButton = document.createElement("button");
         uploadButton.textContent = "Upload Name & Response";
         uploadButton.onclick = function () {
-          addNameResponse(newRow, imageUrl);
+          addNameResponse(newRow);
         };
 
         nameResponseCell.appendChild(nameInput);
@@ -94,10 +98,10 @@
         nameResponseCell.appendChild(uploadButton);
 
         // Store image details in the array
-        imageDetails.push({ imageUrl, names: [], responses: [] });
+        imageDetails.push({ names: [], responses: [] });
       }
 
-      function addNameResponse(row, imageUrl) {
+      function addNameResponse(row) {
         const nameInput = row.querySelector("input[type='text']");
         const responseInput = row.querySelector("textarea");
 
@@ -139,77 +143,7 @@
           responsesList.className = "responses-list";
           row.cells[1].appendChild(responsesList);
         }
-
-        // Update the data on GitHub
-        updateGitHubData(imageUrl, imageDetails[rowIndex]);
       }
-
-      async function updateGitHubData(imageUrl, imageData) {
-        const token =
-          "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";
-        const repoOwner = "rajsahilcoder";
-        const repoName = "CuriousConnect";
-        const branchName = "main"; // or your branch name
-        const imageFileName = `images/${Date.now()}.jpg`; // Unique image file name
-
-        // Upload the image to the "images" folder
-        const imageBlob = await fetch(imageUrl).then((response) =>
-          response.blob()
-        );
-        const imageContent = btoa(
-          new Uint8Array(await imageBlob.arrayBuffer()).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        );
-
-        // Create or update the JSON data
-        imageData.imageUrl = imageFileName;
-        const jsonData = JSON.stringify(imageData, null, 2);
-
-        // Create a new commit with both the image and JSON data
-        await fetch(
-          `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${imageFileName}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `token ${token}`,
-            },
-            body: JSON.stringify({
-              message: "Update image and data",
-              content: imageContent,
-              branch: branchName,
-            }),
-          }
-        );
-
-        await fetch(
-          `https://api.github.com/repos/${repoOwner}/${repoName}/contents/data.json`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `token ${token}`,
-            },
-            body: JSON.stringify({
-              message: "Update data",
-              content: btoa(jsonData),
-              branch: branchName,
-            }),
-          }
-        );
-      }
-
-      // Initialize the imageDetails array with existing data from data.json (if available)
-      // Fetch data.json and parse it to populate imageDetails
-      fetch(
-        "https://raw.githubusercontent.com/rajsahilcoder/CuriousConnect/main/data.json"
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            imageDetails.push(...data);
-          }
-        });
     </script>
   </body>
 </html>
